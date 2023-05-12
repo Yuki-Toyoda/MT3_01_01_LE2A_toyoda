@@ -34,6 +34,45 @@ void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label) 
 }
 
 /// <summary>
+/// ベクトルの減算
+/// </summary>
+/// <param name="v1">ベクトル1</param>
+/// <param name="v2">ベクトル2</param>
+/// <returns>減算されたベクトル</returns>
+Vector3 Subtract(const Vector3& v1, const Vector3& v2) {
+
+	// 結果格納用
+	Vector3 result;
+
+	// 計算処理
+	result.x = v1.x - v2.x;
+	result.y = v1.y - v2.y;
+	result.z = v1.z - v2.z;
+
+	return result;
+
+}
+
+/// <summary>
+/// 内積を求める
+/// </summary>
+/// <param name="v1">ベクトル1</param>
+/// <param name="v2">ベクトル2</param>
+/// <returns>内積</returns>
+float Dot(const Vector3& v1, const Vector3& v2) {
+
+	// 結果格納用
+	float result;
+
+	// 計算処理
+	result = (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
+
+	return result;
+
+}
+
+
+/// <summary>
 /// 行列のクロス積を求める関数
 /// </summary>
 /// <param name="v1">ベクトル1</param>
@@ -656,6 +695,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			Vector3 ndcVertex = Transform(kLocalVertics[i], worldViewProjectionMatrix);
 			screenVertices[i] = Transform(ndcVertex, viewPortmatrix);
 		}
+		
 
 		///
 		/// ↑更新処理ここまで
@@ -668,13 +708,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//計算後のベクトル描画
 		VectorScreenPrintf(0, 0, cross, "Cross");
 
-		// 三角形の描画
-		Novice::DrawTriangle(
-			int(screenVertices[0].x), int(screenVertices[0].y),
-			int(screenVertices[1].x), int(screenVertices[1].y),
-			int(screenVertices[2].x), int(screenVertices[2].y),
-			RED, kFillModeSolid
-		);
+		// 三角形が表か裏かをクロス式によって判断する
+		Vector3 aCross = Cross(
+			Subtract(screenVertices[1], screenVertices[0]),
+			Subtract(screenVertices[2], screenVertices[1]));
+		if (Dot(cameraPosition, aCross) <= 0) {
+			// 三角形の描画
+			Novice::DrawTriangle(
+				int(screenVertices[0].x), int(screenVertices[0].y),
+				int(screenVertices[1].x), int(screenVertices[1].y),
+				int(screenVertices[2].x), int(screenVertices[2].y),
+				RED, kFillModeSolid
+			);
+		}
 
 		///
 		/// ↑描画処理ここまで
